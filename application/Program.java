@@ -1,11 +1,8 @@
 package application;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
-import entities.ContatoSistema;
+import service.AgendaSistema;
 
 public class Program {
 
@@ -13,7 +10,7 @@ public class Program {
 
 		Scanner sc = new Scanner(System.in);
 
-		List<ContatoSistema> agenda = new ArrayList<>();
+		AgendaSistema agenda = new AgendaSistema();
 
 		String resp;
 
@@ -21,58 +18,47 @@ public class Program {
 
 			System.out.print("Nome: ");
 			String nome = sc.nextLine();
-
 			System.out.print("Número: ");
 			String numero = sc.nextLine();
-
 			System.out.print("Tipo(Celular, Residencial, etc): ");
 			String tipo = sc.nextLine();
-
 			System.out.print("E-mail: ");
 			String email = sc.nextLine();
-
 			System.out.print("Adicionar aos favoritos? [s]/[n] ");
-			String favorito = sc.next();
-			if (favorito.equalsIgnoreCase("s"))
-				agenda.add(new ContatoSistema(nome, numero, tipo, true, email));
+			String favorito = sc.nextLine();
 
-			else
-				agenda.add(new ContatoSistema(nome, numero, tipo, false, email));
+			agenda.salvarContato(nome, numero, tipo, favorito, email);
 
-			System.out.print("Deseja acrecentar mais um contato? [s]/[n] ");
-			resp = sc.next();
+			System.out.print("\nDeseja acrecentar mais um contato? [s]/[n] ");
+			resp = sc.nextLine();
 			if (resp.equalsIgnoreCase("n"))
 				break;
 
 			System.out.println("");
-			sc.nextLine();
 		}
 
-		System.out.print("Deseja ver sua lista de contatos? [s]/[n] ");
-		resp = sc.next();
-		if (resp.equalsIgnoreCase("s"))
-			for (ContatoSistema list : agenda) {
-				System.out.println(list);
-				System.out.println("=======");
+		System.out.print("\nDeseja ver sua lista de contatos? [s]/[n] ");
+		resp = sc.nextLine();
+		agenda.listar(resp);
 
-			}
+		System.out.print("\nDeseja ver os favoritos? [s]/[n] ");
+		resp = sc.nextLine();
+		agenda.listarFav(resp);
+		
+		System.out.print("\nDeseja alterar algum contato? [s]/[n]");
 
-		else
-			System.out.println("Ok, então.\n");
+		System.out.print("\nDeseja deletar algum contato? [s]/[n] ");
+		resp = sc.nextLine();
+		while (true) {
+			agenda.deletarContato(resp, sc);
+			
+			System.out.print("\nDeseja deletar mais algum contato? [s]/[n] ");
+			resp = sc.nextLine();
+			if (resp.equalsIgnoreCase("n"))
+				break;
 
-		System.out.print("Deseja ver os favoritos? [s]/[n] ");
-		resp = sc.next();
-		if (resp.equalsIgnoreCase("s")) {
-			List<ContatoSistema> list = agenda.stream().filter(x -> x.isFavorito() == true).collect(Collectors.toList());
-			for (ContatoSistema lis : list) {
-				System.out.println(lis);
-				System.out.println("=======");
-
-			}
-		} else {
-			System.out.println("Ok, então.\n");
 		}
-
+		
 		sc.close();
 	}
 
