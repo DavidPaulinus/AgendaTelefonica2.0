@@ -11,6 +11,9 @@ public class ContatoSistema {
 	private String tipo;
 	private String email;
 	private Boolean favorito;
+	
+	public ContatoSistema() {
+	}
 
 	public ContatoSistema(String nome, String numero, String tipo, String email, Boolean favorito) {
 		super();
@@ -63,7 +66,7 @@ public class ContatoSistema {
 
 	@Override
 	public String toString() {
-		return nome + "\n" + tipo + "\n+55 " + numero + "\n" + email + "\n" + agenda.isFav(favorito);
+		return nome + "\n" + tipo + "\n+55 " + numero + "\n" + email + "\n" + agenda.isFav(favorito)+"\n=======";
 	}
 
 }

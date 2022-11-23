@@ -12,9 +12,9 @@ public class Program {
 
 		AgendaSistema agenda = new AgendaSistema();
 
-		String resp;
+		String resp = "s";
 
-		while (true) {
+		while (resp.equalsIgnoreCase("s")) {
 
 			System.out.print("Nome: ");
 			String nome = sc.nextLine();
@@ -31,34 +31,63 @@ public class Program {
 
 			System.out.print("\nDeseja acrecentar mais um contato? [s]/[n] ");
 			resp = sc.nextLine();
-			if (resp.equalsIgnoreCase("n"))
-				break;
 
 			System.out.println("");
 		}
 
 		System.out.print("\nDeseja ver sua lista de contatos? [s]/[n] ");
 		resp = sc.nextLine();
-		agenda.listar(resp);
+		agenda.listar();
 
 		System.out.print("\nDeseja ver os favoritos? [s]/[n] ");
 		resp = sc.nextLine();
-		agenda.listarFav(resp);
+		agenda.listarFav();
 		
 		System.out.print("\nDeseja alterar algum contato? [s]/[n]");
+		resp = sc.nextLine();
+		if (resp.equalsIgnoreCase("s")) {
+			agenda.listar();
+
+			System.out.println("\nQual deseja alterar? ");
+			System.out.print("Nome: ");
+			String nome = sc.nextLine();
+
+			System.out.println("\nO que deseja alterar? " 
+					+ "\n1 - Nome" 
+					+ "\n2 - Tipo" 
+					+ "\n3 - Número"
+					+ "\n4 - E-mail" 
+					+ "\n5 - Favorito");
+			int numero = sc.nextInt();
+
+			agenda.alterarContato(nome, numero);
+			sc.nextLine();
+
+		} else {
+			System.out.println("\nOk então");
+		}
+
 
 		System.out.print("\nDeseja deletar algum contato? [s]/[n] ");
 		resp = sc.nextLine();
-		while (true) {
-			agenda.deletarContato(resp, sc);
-			
+		if (resp.equalsIgnoreCase("s")) {
+
+			agenda.listar();
+
+			System.out.println("Qual deseja deletar? ");
+			System.out.print("Nome: ");
+			String nome = sc.nextLine();
+
+			agenda.deletarContato(nome);
 			System.out.print("\nDeseja deletar mais algum contato? [s]/[n] ");
 			resp = sc.nextLine();
-			if (resp.equalsIgnoreCase("n"))
-				break;
 
+		} else {
+			System.out.println("\nOk então");
 		}
 		
+		agenda.listar();
+
 		sc.close();
 	}
 
