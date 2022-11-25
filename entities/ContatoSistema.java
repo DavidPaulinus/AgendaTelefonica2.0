@@ -1,34 +1,19 @@
 package entities;
 
-import service.AgendaSistema;
-
 public class ContatoSistema {
-
-	AgendaSistema agenda = new AgendaSistema();
 
 	private String nome;
 	private String numero;
 	private String tipo;
 	private String email;
-	private Boolean favorito;
-	
-	public ContatoSistema() {
-	}
+	private Byte favorito;
 
-	public ContatoSistema(String nome, String numero, String tipo, String email, Boolean favorito) {
+	public ContatoSistema(String nome, String numero, String tipo, String email, Byte favorito) {
 		super();
 		this.nome = nome;
 		this.numero = numero;
 		this.tipo = tipo;
 		this.email = email;
-		this.favorito = favorito;
-	}
-
-	public Boolean getFavorito() {
-		return favorito;
-	}
-
-	public void setFavorito(Boolean favorito) {
 		this.favorito = favorito;
 	}
 
@@ -64,9 +49,12 @@ public class ContatoSistema {
 		this.email = email;
 	}
 
-	@Override
-	public String toString() {
-		return nome + "\n" + tipo + "\n+55 " + numero + "\n" + email + "\n" + agenda.isFav(favorito)+"\n=======";
+	public Byte getFavorito() {
+		return favorito;
+	}
+
+	public void setFavorito(Byte favorito) {
+		this.favorito = favorito;
 	}
 
 }

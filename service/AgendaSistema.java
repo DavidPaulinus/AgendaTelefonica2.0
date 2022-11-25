@@ -1,86 +1,143 @@
 package service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import entities.ContatoSistema;
 
 public class AgendaSistema {
-
-	private List<ContatoSistema> agenda = new ArrayList<>();
-	
 	private Scanner sc = new Scanner(System.in);
 
-	public void listar() {
-		agenda.forEach(System.out::println);
+	private Connection conn;
+	private ContatoSistema contato;
+
+	public AgendaSistema(Connection conn) {
+		this.conn = conn;
 	}
 
-	public void listarFav() {
-		if (agenda.stream().filter(x -> x.getFavorito() == true) == null) {
-			System.out.println("Não há favoritos.");
+	public void listar() throws SQLException {
+		try (Statement stm = conn.createStatement()) {
+			stm.execute("SELECT * FROM contatos");
 
-		} else {
-			agenda.stream().filter(x -> x.getFavorito() == true).collect(Collectors.toList())
-					.forEach(System.out::println);
+			ResultSet rst = stm.getResultSet();
+
+			while (rst.next()) {
+				System.out.println(
+						rst.getString("NOME") + "\n" + rst.getString("TIPO") + "\n55+ " + rst.getString("NUMERO") + "\n"
+								+ rst.getString("EMAIL") + "\n" + isFav(rst.getByte("FAVORITO")) + "\n===============");
+			}
+
+		}
+	}
+
+	public void listarFav() throws SQLException {
+		try (Statement stm = conn.createStatement()) {
+			stm.execute("SELECT * FROM contatos WHERE favorito = 1");
+
+			ResultSet rst = stm.getResultSet();
+
+			while (rst.next()) {
+				System.out.println(
+						rst.getString("NOME") + "\n" + rst.getString("TIPO") + "\n55+ " + rst.getString("NUMERO") + "\n"
+								+ rst.getString("EMAIL") + "\n" + isFav(rst.getByte("FAVORITO")) + "\n===============");
+			}
+
 		}
 
 	}
 
-	public void salvarContato(String nome, String numero, String tipo, String favorito, String email) {
-		if (favorito.equalsIgnoreCase("s"))
-			agenda.add(0, new ContatoSistema(nome, numero, tipo, email, true));
+	public void salvarContato(ContatoSistema contt) throws SQLException {
+		try (PreparedStatement ps = conn.prepareStatement(
+				"INSERT INTO contatos (NOME, TIPO, NUMERO, EMAIL, FAVORITO) VALUES (?, ?, ?, ?, ?)",
+				Statement.RETURN_GENERATED_KEYS)) {
 
-		else
-			agenda.add(new ContatoSistema(nome, numero, tipo, email, false));
+			ps.setString(1, contt.getNome());
+			ps.setString(2, contt.getTipo());
+			ps.setString(3, contt.getNumero());
+			ps.setString(4, contt.getEmail());
+			ps.setByte(5, contt.getFavorito());
+
+			ps.execute();
+
+			contato = contt;
+		}
 	}
 
-	public String isFav(Boolean favorito) {
-		if (favorito == true)
+	public String isFav(Byte favorito) {
+		if (favorito == (byte) 1)
 			return "FAVORITO";
 		else
 			return "";
 	}
 
-	public void alterarContato(String nome, int numero) {
-
-		Integer index = null;
-		for (int i = 0; i < agenda.size(); ++i) {
-			if (agenda.get(i).getNome().equals(nome)) {
-				index = i;
-
-			} 
-		}
+	public void alterarContato(String nome, int numero) throws SQLException {
 
 		switch (numero) {
 		case 1:
 			System.out.print("Nome: ");
-			agenda.get(index).setNome(sc.nextLine());
+			try (PreparedStatement ps = conn.prepareStatement("UPDATE contatos SET NOME = ? WHERE NOME = ?",
+					Statement.RETURN_GENERATED_KEYS)) {
+
+				ps.setString(1, sc.nextLine());
+				ps.setString(2, nome);
+
+				ps.execute();
+			}
 			System.out.println("Alterado com sucesso");
 			break;
 		case 2:
 			System.out.print("Tipo: ");
-			agenda.get(index).setTipo(sc.nextLine());
+			try (PreparedStatement ps = conn.prepareStatement("UPDATE contatos SET TIPO = ? WHERE NOME = ?",
+					Statement.RETURN_GENERATED_KEYS)) {
+
+				ps.setString(1, sc.nextLine());
+				ps.setString(2, nome);
+
+				ps.execute();
+			}
 			System.out.println("Alterado com sucesso");
 			break;
 		case 3:
 			System.out.print("Número: ");
-			agenda.get(index).setNumero(sc.nextLine());
+			try (PreparedStatement ps = conn.prepareStatement("UPDATE contatos SET NUMERO = ? WHERE NOME = ?",
+					Statement.RETURN_GENERATED_KEYS)) {
+
+				ps.setString(1, sc.nextLine());
+				ps.setString(2, nome);
+
+				ps.execute();
+			}
 			System.out.println("Alterado com sucesso");
 			break;
 		case 4:
 			System.out.print("E-mail: ");
-			agenda.get(index).setEmail(sc.nextLine());
+			try (PreparedStatement ps = conn.prepareStatement("UPDATE contatos SET EMAIL = ? WHERE NOME = ?",
+					Statement.RETURN_GENERATED_KEYS)) {
+
+				ps.setString(1, sc.nextLine());
+				ps.setString(2, nome);
+
+				ps.execute();
+			}
 			System.out.println("Alterado com sucesso");
 			break;
 		case 5:
-			if (agenda.get(index).getFavorito() == true) {
-				agenda.get(index).setFavorito(false);
+			try (PreparedStatement ps = conn.prepareStatement("UPDATE contatos (FAVORITO) VALUES (?) WHERE NOME = ?",
+					Statement.RETURN_GENERATED_KEYS)) {
 
-			} else {
-				agenda.get(index).setFavorito(true);
+				if (contato.getFavorito() == 0) {
+					ps.setByte(1, (byte) 1);
 
+				} else {
+					ps.setByte(1, (byte) 0);
+				}
+				ps.setString(2, nome);
+
+				ps.execute();
 			}
 			System.out.println("Alterado com sucesso");
 			break;
@@ -90,8 +147,11 @@ public class AgendaSistema {
 		}
 	}
 
-	public void deletarContato(String nome) {
-		agenda.removeIf(x -> x.getNome().equals(nome));
+	public void deletarContato(String nome) throws SQLException {
+		try (PreparedStatement ps = conn.prepareStatement("DELETE FROM contatos WHERE nome = ?")) {
+			ps.setString(1, nome);
+		}
+
 		System.out.println("Contato " + nome + " removido com sucesso!");
 	}
 
